@@ -7,8 +7,8 @@ Usage:
 
 Options:
     --use-local           Use ONLY local package info instead of querying PyPI
-    --pypi-server         Use custom PyPi server
-    --proxy               Use Proxy, parameter will be passed to requests library. You can also just set the
+    --pypi-server <url>   Use custom PyPi server
+    --proxy <url>         Use Proxy, parameter will be passed to requests library. You can also just set the
                           environments parameter in your terminal:
                           $ export HTTP_PROXY="http://10.10.1.10:3128"
                           $ export HTTPS_PROXY="https://10.10.1.10:1080"
@@ -16,6 +16,7 @@ Options:
     --ignore <dirs>...    Ignore extra directories, each separated by a comma
     --encoding <charset>  Use encoding parameter for file open
     --savepath <file>     Save the list of requirements in the given file
+    --print               Output the list of requirements in the standard output
     --force               Overwrite existing requirements.txt
 """
 from __future__ import print_function, absolute_import
@@ -117,6 +118,14 @@ def generate_requirements_file(path, imports):
         out_file.write('\n'.join(fmt.format(**item) if item['version'] else '{name}'.format(**item)
                                  for item in imports) + '\n')
 
+def output_requirements(imports):
+    logging.debug('Writing {num} requirements: {imports} to stdout'.format(
+        num=len(imports),
+        imports=", ".join([x['name'] for x in imports])
+    ))
+    fmt = '{name}=={version}'
+    print('\n'.join(fmt.format(**item) if item['version'] else '{name}'.format(**item)
+                             for item in imports))
 
 def get_imports_info(imports, pypi_server="https://pypi.python.org/pypi/", proxy=None):
     result = []
@@ -241,12 +250,16 @@ def init(args):
     path = (args["--savepath"] if args["--savepath"] else
             os.path.join(args['<path>'], "requirements.txt"))
 
-    if not args["--savepath"] and not args["--force"] and os.path.exists(path):
+    if not args["--print"] and not args["--savepath"] and not args["--force"] and os.path.exists(path):
         logging.warning("Requirements.txt already exists, "
                         "use --force to overwrite it")
         return
-    generate_requirements_file(path, imports)
-    logging.info("Successfully saved requirements file in " + path)
+    if args["--print"]:
+        output_requirements(imports)
+        logging.info("Successfully output requirements")
+    else:
+        generate_requirements_file(path, imports)
+        logging.info("Successfully saved requirements file in " + path)
 
 
 def main():  # pragma: no cover
