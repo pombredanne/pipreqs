@@ -125,7 +125,8 @@ def output_requirements(imports):
     ))
     fmt = '{name}=={version}'
     print('\n'.join(fmt.format(**item) if item['version'] else '{name}'.format(**item)
-                             for item in imports))
+                    for item in imports))
+
 
 def get_imports_info(imports, pypi_server="https://pypi.python.org/pypi/", proxy=None):
     result = []
@@ -183,7 +184,16 @@ def get_import_local(imports, encoding=None):
     for item in imports:
         if item.lower() in local:
             result.append(local[item.lower()])
-    return result
+
+    # removing duplicates of package/version
+    result_unique = [
+        dict(t)
+        for t in set([
+            tuple(d.items()) for d in result
+        ])
+    ]
+
+    return result_unique
 
 
 def get_pkg_names(pkgs):
@@ -220,9 +230,9 @@ def init(args):
     if extra_ignore_dirs:
         extra_ignore_dirs = extra_ignore_dirs.split(',')
 
-    candidates = get_all_imports(args['<path>'], 
+    candidates = get_all_imports(args['<path>'],
                                  encoding=encoding,
-                                 extra_ignore_dirs = extra_ignore_dirs)
+                                 extra_ignore_dirs=extra_ignore_dirs)
     candidates = get_pkg_names(candidates)
     logging.debug("Found imports: " + ", ".join(candidates))
     pypi_server = "https://pypi.python.org/pypi/"

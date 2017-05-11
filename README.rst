@@ -9,8 +9,6 @@
 .. image:: https://img.shields.io/pypi/v/pipreqs.svg
         :target: https://pypi.python.org/pypi/pipreqs
 
-.. image:: https://img.shields.io/pypi/dm/pipreqs.svg
-        :target: https://pypi.python.org/pypi/pipreqs
         
 .. image:: https://img.shields.io/coveralls/bndr/pipreqs.svg 
         :target: https://coveralls.io/r/bndr/pipreqs
@@ -47,6 +45,7 @@ Usage
         --ignore <dirs>...    Ignore extra directories
         --encoding <charset>  Use encoding parameter for file open
         --savepath <file>     Save the list of requirements in the given file
+        --print               Output the list of requirements in the standard output
         --force               Overwrite existing requirements.txt
 
 Example
